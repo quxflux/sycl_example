@@ -61,10 +61,10 @@ int main()
   std::vector<data_set> data(10'000'000);
 
   std::mt19937 gen{42};
-  std::uniform_int_distribution<data_set::value_type> dis;
+  std::uniform_int_distribution<int32_t> dis;
 
   for (auto& d : data)
-    std::ranges::generate(d, [&] { return dis(gen); });
+    std::ranges::generate(d, [&] { return static_cast<data_set::value_type>(dis(gen)); });
 
   std::cout << data.size() << " arrays with each " << data_set{}.size() << " items\n";
 
