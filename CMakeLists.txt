@@ -20,7 +20,7 @@ if (SYCL_STARTER_USE_FMA)
     set(SYCL_STARTER_FMA -fma)
 endif()
 
-set(SYCL_FLAGS -fsycl -fsycl-targets=${SYCL_STARTER_SYCL_TARGETS_CMD} ${SYCL_STARTER_FMA})
+set(SYCL_FLAGS -fsycl -fsycl-targets=${SYCL_STARTER_SYCL_TARGETS_CMD} ${SYCL_STARTER_FMA} -ffast-math)
 message("SYCL flags: ${SYCL_FLAGS}")
 target_compile_features(sycl_target INTERFACE cxx_std_23)
 target_compile_options(sycl_target INTERFACE ${SYCL_FLAGS})
