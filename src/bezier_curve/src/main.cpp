@@ -33,26 +33,6 @@ namespace
     return {a[0] + b[0], a[1] + b[1], a[2] + b[2]};
   }
 
-  using impl = std::function<void(std::span<point3f>, std::span<const point3f, 4>, std::span<const float>)>;
-  void benchmark(const std::span<point3f> result, const std::span<const point3f, 4> control_points, const std::span<const float> ts, const impl& f, const std::string& impl_name)
-  {
-    std::cout << "Benchmarking " << impl_name << "...\n";
-    std::vector<std::chrono::duration<double>> timing;
-
-    for (size_t i = 0; i < 5; ++i)
-    {
-      std::ranges::fill(result, point3f{});
-
-      timing.push_back(quxflux::measure_exec_time([&] { f(result, control_points, ts); }));
-      quxflux::do_not_optimize(result);
-    }
-
-    std::ranges::nth_element(timing, std::ranges::next(std::ranges::begin(timing), std::ranges::ssize(timing) / 2));
-    const auto median_dur = *std::ranges::next(std::ranges::begin(timing), std::ranges::ssize(timing) / 2);
-
-    std::cout << "Median duration: " << median_dur.count() << " s, rate: " << (static_cast<double>(result.size()) / double{std::mega::num}) / median_dur.count() << " mPts/s\n";
-  }
-
   void calculate_native(const std::span<point3f> result, const std::span<const point3f, 4> control_points, const std::span<const float> ts)
   {
     for (size_t i = 0, n = std::min(result.size(), ts.size()); i < n; ++i)
@@ -89,7 +69,7 @@ namespace
 
   auto make_sycl_implementations()
   {
-    std::vector<std::pair<std::string, impl>> impls;
+    std::vector<std::pair<std::string, std::function<void(std::span<point3f>, std::span<const point3f, 4>, std::span<const float>)>>> impls;
 
     for (const auto& device : quxflux::get_supported_devices<interpolate_bezier_cubic_kernel>())
       impls.emplace_back(quxflux::get_name(device), make_sycl_implementation(device));
