@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.20)  
-  
-project(test_application)  
+cmake_minimum_required(VERSION 3.25)
+
+project(test_application)
 
 include(cmake/CPM.cmake)
 
