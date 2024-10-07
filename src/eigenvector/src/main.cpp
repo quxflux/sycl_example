@@ -55,7 +55,7 @@ namespace
         handler.require(device_matrices);
         handler.require(device_vectors);
         handler.parallel_for<calculate_eigenvector>(matrix_buffer.get_range(),
-                                                   [=](const sycl::item<1> idx) { device_vectors[idx] = calculate_eigenvector_with_largest_eigenvalue(device_matrices[idx]); });
+                                                    [=](const sycl::item<1> idx) { device_vectors[idx] = calculate_eigenvector_with_largest_eigenvalue(device_matrices[idx]); });
       });
     };
   }
@@ -97,7 +97,7 @@ int main()
   {
     std::cout << "benchmarking implementation: " << name << '\n';
 
-    const auto median_duration = quxflux::benchmark([&] { f(matrices, result); }, 10,  //
+    const auto median_duration = quxflux::benchmark([&] { f(matrices, result); },  //
                                                     [&] { std::ranges::fill(result, vector_storage{}); },
                                                     [&] {
                                                       // make sure compiler does not outsmart us and put out a rudimentary checksum

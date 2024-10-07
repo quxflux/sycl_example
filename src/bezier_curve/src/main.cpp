@@ -57,8 +57,8 @@ namespace
       std::ranges::copy(control_points, cps.begin());
 
       queue.submit([&](sycl::handler& handler) {
-        sycl::accessor device_results{results_buffer, sycl::write_only};
-        sycl::accessor device_ts{ts_buffer, sycl::read_only};
+        const sycl::accessor device_results{results_buffer, sycl::write_only};
+        const sycl::accessor device_ts{ts_buffer, sycl::read_only};
 
         handler.require(device_results);
         handler.require(device_ts);
@@ -104,17 +104,19 @@ int main()
   {
     std::cout << "benchmarking implementation: " << name << '\n';
 
-    const auto median_duration =quxflux::benchmark([&] { f(interpolants, control_points, independent_variables); }, 10, [&] { std::ranges::fill(interpolants, point3f{}); },
-                       [&] {
-                         // make sure compiler does not outsmart us and put out a rudimentary checksum
-                         quxflux::do_not_optimize(interpolants);
-                         int32_t checksum = 0;
-                         for (const auto& p : interpolants)
-                           for (const auto& c : p)
-                             checksum += static_cast<int32_t>(c * 1000);
+    const auto median_duration = quxflux::benchmark(                    //
+      [&] { f(interpolants, control_points, independent_variables); },  //
+      [&] { std::ranges::fill(interpolants, point3f{}); },
+      [&] {
+        // make sure compiler does not outsmart us and put out a rudimentary checksum
+        quxflux::do_not_optimize(interpolants);
+        int32_t checksum = 0;
+        for (const auto& p : interpolants)
+          for (const auto& c : p)
+            checksum += static_cast<int32_t>(c * 1000);
 
-                         std::clog << "checksum: " << checksum << '\n';
-                       });
+        std::clog << "checksum: " << checksum << '\n';
+      });
 
     std::cout << "median exec time:" << median_duration.count() << " s, "  //
               << "processing speed: " << static_cast<double>(interpolants.size()) / double{std::mega::num} / median_duration.count() << " mio. points/s\n";

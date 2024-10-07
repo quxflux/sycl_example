@@ -33,7 +33,7 @@ namespace
       sycl::buffer<data_set> data_buffer(data);
 
       queue.submit([&](sycl::handler& handler) {
-        sycl::accessor device_data{data_buffer, sycl::read_write};
+        const sycl::accessor device_data{data_buffer, sycl::read_write};
 
         handler.require(device_data);
         handler.parallel_for<sorting_net_kernel>(data_buffer.get_range(), [=](const sycl::item<1> idx) { sorting_net{}(device_data[idx].begin()); });
@@ -73,7 +73,7 @@ int main()
     std::cout << "benchmarking implementation: " << name << '\n';
 
     std::vector data_cpy = data;
-    const auto median_duration = quxflux::benchmark([&] { f(data_cpy); }, 10,
+    const auto median_duration = quxflux::benchmark([&] { f(data_cpy); },
                                                     // every run should process the same data
                                                     [&] { std::ranges::copy(data, data_cpy.begin()); },
                                                     [&] {

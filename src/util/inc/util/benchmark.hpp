@@ -32,7 +32,7 @@ namespace quxflux
     return std::chrono::duration_cast<Duration>(end - start);
   }
 
-  auto benchmark(const auto& f, const size_t n = 10, const auto& before_measurement = [] {}, const auto& after_measurement = [] {})
+  auto benchmark(const auto& f, const auto& before_measurement = [] {}, const auto& after_measurement = [] {}, size_t n = 10)
   {
     std::vector<std::chrono::duration<double>> durations;
 
