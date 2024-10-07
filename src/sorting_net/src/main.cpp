@@ -33,7 +33,7 @@ namespace
       sycl::buffer<data_set> data_buffer(data);
 
       queue.submit([&](sycl::handler& handler) {
-        sycl::accessor device_data{data_buffer, sycl::read_write};
+        const sycl::accessor device_data{data_buffer, sycl::read_write};
 
         handler.require(device_data);
         handler.parallel_for<sorting_net_kernel>(data_buffer.get_range(), [=](const sycl::item<1> idx) { sorting_net{}(device_data[idx].begin()); });
@@ -61,10 +61,10 @@ int main()
   std::vector<data_set> data(10'000'000);
 
   std::mt19937 gen{42};
-  std::uniform_int_distribution<data_set::value_type> dis;
+  std::uniform_int_distribution<int32_t> dis;
 
   for (auto& d : data)
-    std::ranges::generate(d, [&] { return dis(gen); });
+    std::ranges::generate(d, [&] { return static_cast<data_set::value_type>(dis(gen)); });
 
   std::cout << data.size() << " arrays with each " << data_set{}.size() << " items\n";
 
@@ -73,7 +73,7 @@ int main()
     std::cout << "benchmarking implementation: " << name << '\n';
 
     std::vector data_cpy = data;
-    const auto median_duration = quxflux::benchmark([&] { f(data_cpy); }, 10,
+    const auto median_duration = quxflux::benchmark([&] { f(data_cpy); },
                                                     // every run should process the same data
                                                     [&] { std::ranges::copy(data, data_cpy.begin()); },
                                                     [&] {
